@@ -10,5 +10,6 @@ enum class PointData : char
 {
     EMPTY = ' ',
     WALL = 'X',
-    PLAYER = '@'
+    PLAYER = '@',
+    TRAP = 'O'
 };
