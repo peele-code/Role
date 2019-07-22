@@ -13,11 +13,11 @@ void Arena::Load(const std::string& filePath)
     FillData(fileStream);
     this->_originalArena.reserve(this->_grid.size());
     std::copy(this->_grid.begin(), this->_grid.end(), std::back_inserter(this->_originalArena));
-    this->_originalArena[this->_playerPosition.y][this->_playerPosition.x] = (char)PointData::EMPTY;
-    for (auto it = this->_traps.begin(); it != this->_traps.end(); ++it)
+    this->_originalArena[this->_playerPosition.y][this->_playerPosition.x] = static_cast<char>(PointData::EMPTY);
+    for (auto const& it : this->_traps)
     {
-        Point point = it->get()->GetPosition();
-        this->_originalArena[point.y][point.x] = (char)PointData::EMPTY;
+        const Point point = it->GetPosition();
+        this->_originalArena[point.y][point.x] = static_cast<char>(PointData::EMPTY);
     }
 }
 
@@ -30,7 +30,7 @@ void Arena::FillData(std::ifstream& stream)
         std::string row;
         std::copy_if(std::begin(line), std::end(line), std::back_inserter(row), [&](decltype(row)::value_type character)
         {
-            switch ((PointData)(character))
+            switch (static_cast<PointData>(character))
             {
                 case PointData::PLAYER:
                 {
@@ -41,7 +41,7 @@ void Arena::FillData(std::ifstream& stream)
 
                 case PointData::TRAP:
                 {
-                    Point point;
+                    auto point = Point();
                     point.x = colNumber;
                     point.y = rowNumber;
                     this->_traps.emplace_back(new Trap(character, point));
@@ -71,17 +71,17 @@ void Arena::Update()
         return;
     }
 
-    if (nextPosition.y < 0 || nextPosition.y >= (int)this->_grid.size())
+    if (nextPosition.y < 0 || nextPosition.y >= static_cast<int>(this->_grid.size()))
     {
         return;
     }
 
-    if (nextPosition.x < 0 || nextPosition.x >= (int)this->_grid[nextPosition.y].size())
+    if (nextPosition.x < 0 || nextPosition.x >= static_cast<int>(this->_grid[nextPosition.y].size()))
     {
         return;
     }
 
-    PointData data = (PointData)this->_grid[nextPosition.y][nextPosition.x];
+    const auto data = static_cast<PointData>(this->_grid[nextPosition.y][nextPosition.x]);
     if (data != PointData::EMPTY)
     {
         return;
@@ -91,18 +91,17 @@ void Arena::Update()
     this->_grid[this->_playerPosition.y][this->_playerPosition.x] = this->_originalArena[this->_playerPosition.y][this->_playerPosition.x];
     this->_playerPosition.x = nextPosition.x;
     this->_playerPosition.y = nextPosition.y;
-    for (auto it = this->_traps.begin(); it != this->_traps.end(); ++it)
+	for (auto const& trap : this->_traps)
     {
-        Trap* trap = it->get();
         Point point = trap->GetPosition();
         this->_grid[point.y][point.x] = this->_originalArena[point.y][point.x];
         trap->Update(this->_grid);
         point = trap->GetPosition();
-        this->_grid[point.y][point.x] = (char)trap->GetSign();
+        this->_grid[point.y][point.x] = static_cast<char>(trap->GetSign());
     }
 }
 
-const std::vector<std::string> Arena::Grid()
+std::vector<std::string> Arena::Grid() const
 {
     return this->_grid;
 }

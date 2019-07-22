@@ -4,7 +4,7 @@
 class Renderer
 {
 public:
-    void Load(std::weak_ptr<Arena> arena);
+    void Load(const std::weak_ptr<Arena>& arena);
     void Draw() const;
 private:
     std::weak_ptr<Arena> _arena;
